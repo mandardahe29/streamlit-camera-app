@@ -46,6 +46,9 @@ def main():
         saved_path = save_image(image, folder)
         st.success(f"Image saved at: {saved_path}")
         st.image(saved_path, caption="Saved Image", use_column_width=True)
+    
+    if os.path.exists("Folder1"):
+        st.write("Files in Folder1:", os.listdir("Folder1"))
 
 if __name__ == "__main__":
     main()
