@@ -14,22 +14,17 @@ def save_image(image, folder_path):
 
 def list_folder_contents(folder):
     if os.path.exists(folder):
-        # Filter only image files
+        # Only list common image types.
         files = os.listdir(folder)
         image_files = [file for file in files if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
         return image_files
     return []
 
-def capture_page():
+def capture_page(folder):
     st.header("Capture Image")
-    # Choose a folder (or enter a custom folder name)
-    folder_options = ["Folder1", "Folder2", "Folder3"]
-    folder = st.selectbox("Select a folder to save images", options=folder_options)
-    custom_folder = st.text_input("Or enter a custom folder name:", value=folder)
-    if custom_folder:
-        folder = custom_folder
-
-    # Create the folder if it doesn't exist.
+    st.write(f"Images will be saved in: **{folder}**")
+    
+    # Ensure the folder exists.
     if not os.path.exists(folder):
         os.makedirs(folder)
         st.info(f"Created folder: {folder}")
@@ -43,9 +38,10 @@ def capture_page():
         st.image(str(saved_path), caption="Saved Image", use_column_width=True)
 
 def gallery_page(folder):
-    st.header(f"Gallery - {folder}")
+    st.header(f"Gallery for folder: {folder}")
+    
     if not os.path.exists(folder):
-        st.write("Folder does not exist. No images to display.")
+        st.write("Folder does not exist yet. Capture an image first!")
     else:
         image_files = list_folder_contents(folder)
         if image_files:
@@ -56,20 +52,26 @@ def gallery_page(folder):
             st.write("No images found in this folder.")
 
 def main():
-    st.title("Camera App with Folder Gallery")
+    st.title("Camera App with Dynamic Folder Selection")
     
-    # Sidebar toolbar for navigation.
-    nav_options = ["Capture", "Gallery: Folder1", "Gallery: Folder2", "Gallery: Folder3"]
+    # Sidebar: Custom folder name and navigation.
+    st.sidebar.header("Settings")
+    # Enter a custom folder name; default is 'Folder1'
+    folder = st.sidebar.text_input("Enter custom folder name:", value="Folder1")
+    # Auto-create the folder if it doesn't exist.
+    if folder and not os.path.exists(folder):
+        os.makedirs(folder)
+        st.sidebar.info(f"Created folder: {folder}")
+    
+    # Sidebar navigation.
+    nav_options = ["Capture", "Gallery"]
     selection = st.sidebar.radio("Navigation", nav_options)
     
+    # Show the appropriate page.
     if selection == "Capture":
-        capture_page()
-    elif selection == "Gallery: Folder1":
-        gallery_page("Folder1")
-    elif selection == "Gallery: Folder2":
-        gallery_page("Folder2")
-    elif selection == "Gallery: Folder3":
-        gallery_page("Folder3")
+        capture_page(folder)
+    elif selection == "Gallery":
+        gallery_page(folder)
 
 if __name__ == "__main__":
     main()
